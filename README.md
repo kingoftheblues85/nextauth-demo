@@ -1,34 +1,68 @@
-This is a [Next.js](https://nextjs.org/) project bootstrapped with [`create-next-app`](https://github.com/vercel/next.js/tree/canary/packages/create-next-app).
+## Description
 
-## Getting Started
+The purpose of this app is to demonstrate how to set up nextauth
 
-First, run the development server:
+1. First, set up an account at https://console.cloud.google.com/
 
-```bash
-npm run dev
-# or
-yarn dev
-# or
-pnpm dev
+2. Install the next-auth package
+```
+npm install next-auth
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+3. Set up the environment variables. 
+```
+> ./.env
+GOOGLE_ID='<google-id-goes-here>'
+GOOGLE_SECRET='<google-secret-key-goes-here>'
+```
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+4. Set up the API route 
+```
+> ./app/api/auth/[...nextauth]/route.ts
 
-This project uses [`next/font`](https://nextjs.org/docs/basic-features/font-optimization) to automatically optimize and load Inter, a custom Google Font.
+import NextAuth from "next-auth"
+const handler = NextAuth({
+  providers: [
+      GoogleProvider({
+        clientId: process.env.GOOGLE_ID,
+        clientSecret: process.env.GOOGLE_SECRET
+      }),
+    ]
+})
+export { handler as GET, handler as POST }
+```
 
-## Learn More
+5. Create a provider file to wrap the entire layout in
+```
+> ./providers/NextAuthSessionProvider.tsx:
 
-To learn more about Next.js, take a look at the following resources:
+"use client";
+import { SessionProvider } from "next-auth/react";
+export default function NextAuthSessionProvider({
+  children,
+}: {
+  children: React.ReactNode;
+}) {
+  return <SessionProvider>{children}</SessionProvider>;
+}
+```
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+6. Wrap the contents of the body tag in layout.tsx with the session provider
+```
+> ./app/layout.tsx
+...
+<body className={inter.className}>
+  <NextAuthSessionProvider>
+    <Nav />
+    {children}
+  </NextAuthSessionProvider>
+</body>
+...
+```
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js/) - your feedback and contributions are welcome!
+7. To use the session:
+`import { useSession, signIn, signOut } from 'next-auth/react'`
+`const { data: session } = useSession();`
 
-## Deploy on Vercel
-
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
-
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/deployment) for more details.
+8. To chech for session:
+`{session ? session.user : null}`
