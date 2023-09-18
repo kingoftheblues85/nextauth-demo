@@ -61,8 +61,8 @@ export default function NextAuthSessionProvider({
 ```
 
 7. To use the session:
-`import { useSession, signIn, signOut } from 'next-auth/react'`
-`const { data: session } = useSession();`
+- `import { useSession, signIn, signOut } from 'next-auth/react'`
+- `const { data: session } = useSession();`
 
-8. To chech for session:
+9. To chech for session:
 `{session ? session.user : null}`
