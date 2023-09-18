@@ -65,4 +65,4 @@ export default function NextAuthSessionProvider({
 - `const { data: session } = useSession();`
 
 9. To chech for session:
-`{session ? session.user : null}`
+- `{session ? session.user : null}`
